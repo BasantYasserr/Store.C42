@@ -1,5 +1,9 @@
 
+using Azure;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Store.C42.APIs.Errors;
 using Store.C42.Core;
 using Store.C42.Core.Mapping.Products;
 using Store.C42.Core.Services.Contract;
@@ -33,6 +37,22 @@ namespace Store.C42.APIs
 
             builder.Services.AddAutoMapper(M => M.AddProfile(new ProductProfile(builder.Configuration)));
 
+            builder.Services.Configure<ApiBehaviorOptions>(options =>
+            {
+                options.InvalidModelStateResponseFactory = (actionContext) =>
+                {
+                    var errors = actionContext.ModelState.Where(P => P.Value.Errors.Count() > 0)
+                                              .SelectMany(P => P.Value.Errors)
+                                              .Select(E => E.ErrorMessage)
+                                              .ToArray();
+
+                    var response = new ApiValidationErrorResponse()
+                    {
+                        Errors = errors
+                    };
+                    return new BadRequestObjectResult(response);
+                };
+            });
 
             var app = builder.Build();
 
