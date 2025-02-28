@@ -5,9 +5,7 @@ using Store.C42.Repository.Data.Contexts;
 
 namespace Store.C42.APIs.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class BuggyController : ControllerBase
+    public class BuggyController : BaseApiController
     {
         private readonly StoreDbContext _context;
 
@@ -32,7 +30,7 @@ namespace Store.C42.APIs.Controllers
             var brand = await _context.Brands.FindAsync(100);
             var brandToString = brand.ToString();   //Will Throw Exception (NullReferenceException)
             return Ok(brand);
-        }
+         }
 
         [HttpGet("badrequest")]   //GET:   /api/buggy/badrequest
         public async Task<IActionResult> GetBadRequest()
